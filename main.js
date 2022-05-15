@@ -1,0 +1,97 @@
+// Modules to control application life and create native browser window
+const {app, BrowserWindow, Menu, ipcMain} = require('electron')
+const remote = require("@electron/remote/main")
+const path = require('path')
+const getHttpData = require('./util/getHttpData');
+const serve = require('./util/serve');
+
+remote.initialize();
+
+// 隐藏菜单栏
+Menu.setApplicationMenu(null);
+
+let mainWindow = null;
+
+// const defaultUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/' : 'dist/build/index.html';
+
+function createWindow (url = 'http://localhost:3000/', preload = path.join(__dirname, 'preload.js'), parent = mainWindow) {
+  // Create the browser window.
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    // frame: false,  // 无边框
+    // parent: parent,
+    // alwaysOnTop: true,
+    webPreferences: {
+      // webviewTag: true,
+      // enableRemoteModule: true,
+      // sandbox: true,
+      nodeIntegration: true,
+      enableRemoteModule: true,   // 使用remote模块
+      // contextIsolation: false,
+      preload: preload,
+    }
+  })
+
+  // getHttpData(mainWindow);
+
+  // and load the index.html of the app.
+  // mainWindow.loadURL('http://172.16.52.215:9098/')
+  if (/(http|https):\/\/([\w.]+\/?)\S*/.test(url)) {
+    mainWindow.loadURL(url)
+  }
+  else {
+    mainWindow.loadFile(url)
+  }
+
+  // Open the DevTools.
+  // mainWindow.webContents.openDevTools()
+
+  remote.enable(mainWindow.webContents)
+
+  return mainWindow;
+}
+
+ipcMain.on('open', (event, data) => {
+  // console.log(event, data);
+  const webWindow = createWindow(data.url);
+  getHttpData(webWindow);
+})
+
+ipcMain.on('serve.create', (event, data) => {
+  console.log('serve.create', data.port);
+  // console.log(event, data);
+  serve.create();
+})
+
+ipcMain.on('serve.close', (event, data) => {
+  console.log('serve.close')
+  // console.log(event, data);
+  serve.close();
+})
+
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.whenReady().then(() => {
+  mainWindow = createWindow()
+
+  app.on('activate', function () {
+    // On macOS it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (BrowserWindow.getAllWindows().length === 0) mainWindow = createWindow()
+  })
+})
+
+// Quit when all windows are closed, except on macOS. There, it's common
+// for applications and their menu bar to stay active until the user quits
+// explicitly with Cmd + Q.
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') {
+    app.quit()
+    serve.close();
+  }
+})
+
+// In this file you can include the rest of your app's specific main process
+// code. You can also put them in separate files and require them here.
