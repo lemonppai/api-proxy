@@ -14,11 +14,14 @@ let mainWindow = null;
 
 // const defaultUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/' : 'dist/build/index.html';
 
-function createWindow (url = 'http://localhost:3000/', preload = path.join(__dirname, 'preload.js'), parent = mainWindow) {
+// const defaultUrl = 'http://localhost:3000/';
+const defaultUrl = 'dist/build/index.html';
+
+function createWindow (url = defaultUrl, preload = path.join(__dirname, 'preload.js'), parent = mainWindow) {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 700,
     // frame: false,  // 无边框
     // parent: parent,
     // alwaysOnTop: true,
@@ -55,7 +58,7 @@ function createWindow (url = 'http://localhost:3000/', preload = path.join(__dir
 ipcMain.on('open', (event, data) => {
   // console.log(event, data);
   const webWindow = createWindow(data.url);
-  getHttpData(webWindow);
+  getHttpData(webWindow, data.id);
 })
 
 ipcMain.on('serve.create', (event, data) => {

@@ -43,7 +43,7 @@ async function saveFile(path, data) {
   fs.writeFileSync(path, data);
 }
 
-module.exports = (webWindow) => {
+module.exports = (webWindow, id) => {
   try {
     webWindow.webContents.debugger.attach('1.1');
   } catch (err) {
@@ -63,9 +63,7 @@ module.exports = (webWindow) => {
           // console.log(JSON.parse(response.body));
           const location = url.parse(params.response.url);
           const pathname = location.pathname;
-          const host = location.host;
-
-          saveFile(`mock/${encodeURIComponent(host) + pathname}`, response.body);
+          saveFile(`data/${id + pathname}`, response.body);
         });
       }
     }
