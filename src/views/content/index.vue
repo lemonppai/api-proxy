@@ -209,6 +209,8 @@ const handleOpen = (row) => {
     }
   });
 
+  console.log(row)
+
   toolkit.open(row.url, row._id);
 };
 
@@ -270,8 +272,6 @@ const handleEdit = (row) => {
 }
 
 const handleRemove = async (row) => {
-  console.log(row);
-
   const { data } = await api.project.remove({ _id: row._id });
 
   if (data.status == 'ok') {
@@ -299,9 +299,15 @@ const handleOk = () => {
   }); */
   formRef.value?.validate(async (errors) => {
     if (!errors) {
-      const { data } = await api.project[ !form._id ? 'insert' : 'update' ]({
+      const params = {
         ...form,
-      });
+      };
+
+      if (!params._id) {
+        delete params._id;
+      }
+
+      const { data } = await api.project[ !form._id ? 'insert' : 'update' ](params);
 
       // console.log(data);
 
