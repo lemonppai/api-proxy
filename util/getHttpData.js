@@ -63,7 +63,7 @@ module.exports = (webWindow, id) => {
           // console.log(JSON.parse(response.body));
           const location = url.parse(params.response.url);
           const pathname = location.pathname;
-          saveFile(`data/${id + pathname}`, response.body);
+          saveFile(`data/api/${id + pathname}`, response.body);
         });
       }
     }

@@ -22,7 +22,7 @@ module.exports = {
       const pathname = url.parse(req.url).pathname;
       // console.log(pathname)
       // console.log(req)
-      fs.readFile('./data' + pathname, (err, data) => {
+      fs.readFile('./data/api' + pathname, (err, data) => {
         if (err) {
           res.send(404);
           return;

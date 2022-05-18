@@ -14,8 +14,8 @@ let mainWindow = null;
 
 // const defaultUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/' : 'dist/build/index.html';
 
-// const defaultUrl = 'http://localhost:3000/';
-const defaultUrl = 'dist/build/index.html';
+const defaultUrl = 'http://localhost:3000/';
+// const defaultUrl = 'dist/build/index.html';
 
 function createWindow (url = defaultUrl, preload = path.join(__dirname, 'preload.js'), parent = mainWindow) {
   // Create the browser window.

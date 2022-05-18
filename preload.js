@@ -106,6 +106,23 @@ contextBridge.exposeInMainWorld('api', {
       });
     },
 
+    update(params) {
+      // console.log(params)
+
+      return new Promise((resolve) => {
+        db.project.update({ _id: params._id }, params, {}, (err) => {
+          if (!err) {
+            resolve({
+              data: {
+                status: 'ok',
+                msg: '编辑成功',
+              }
+            });
+          }
+        });
+      });
+    },
+
     remove(params) {
       return new Promise((resolve) => {
         // console.log(params);
@@ -123,7 +140,7 @@ contextBridge.exposeInMainWorld('api', {
             });
 
             if (docs[0]) {
-              rmdir(`data/${docs[0]._id}`);
+              rmdir(`data/api/${docs[0]._id}`);
             }
           }
         });

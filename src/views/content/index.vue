@@ -64,7 +64,7 @@
         size="medium"
         role="dialog"
         aria-modal="true">
-        <n-form label-placement="left" label-width="auto" :model="form" :rules="rules">
+        <n-form ref="formRef" label-placement="left" label-width="auto" require-mark-placement="right-hanging" :model="form" :rules="rules">
           <n-form-item path="name" label="应用名">
             <n-input v-model:value="form.name" />
           </n-form-item>
@@ -104,12 +104,28 @@ const loadingBar = useLoadingBar();
 const form = reactive({
   /* url: 'https://baidu.com',
   port: 8070, */
+  _id: null,
   name: null,
   url: null,
   remark: null,
 });
 
-const rules = {};
+const rules = {
+  name: {
+    required: true,
+    trigger: ['blur', 'input'],
+    message: '请输入应用名'
+  },
+
+  url: {
+    required: true,
+    trigger: ['blur', 'input'],
+    message: '请输入正确的路径',
+    validator(rule, vlaue) {
+      return /(http|https):\/\/([\w.]+\/?)\S*/.test(vlaue);
+    }
+  },
+};
 
 const columns = [
   {
@@ -178,6 +194,8 @@ const tableData = ref([]);
 
 const visible = ref(false);
 
+const formRef = ref(null);
+
 onMounted(() => {
   refresh();
 });
@@ -226,6 +244,14 @@ const handleAdd = () => {
     name: data.length,
   }); */
 
+  // console.log(formRef)
+
+  for (let key in form) {
+    form[ key ] = null;
+  }
+
+  formRef.value?.restoreValidation();
+
   visible.value = true;
 }
 
@@ -233,6 +259,12 @@ const handleEdit = (row) => {
   /* data.push({
     name: data.length,
   }); */
+
+  for (let key in form) {
+    form[ key ] = row[ key ];
+  }
+
+  formRef.value?.restoreValidation();
 
   visible.value = true;
 }
@@ -252,7 +284,7 @@ const handleRemove = async (row) => {
   }
 }
 
-const handleOk = async (row) => {
+const handleOk = () => {
   /* db.loadDatabase();
 
   db.project.insert([{ a: 5 }, { a: 42 }], function (err, newDocs) {
@@ -265,23 +297,26 @@ const handleOk = async (row) => {
       message.success('新增成功');
     }
   }); */
+  formRef.value?.validate(async (errors) => {
+    if (!errors) {
+      const { data } = await api.project[ !form._id ? 'insert' : 'update' ]({
+        ...form,
+      });
 
-  const { data } = await api.project.insert([{
-    ...form,
-  }]);
+      // console.log(data);
 
-  // console.log(data);
+      if (data.status == 'ok') {
+        message.success(data.msg);
 
-  if (data.status == 'ok') {
-    message.success(data.msg);
+        refresh();
 
-    refresh();
-
-    visible.value = false;
-  }
-  else {
-    message.warn(data.msg);
-  }
+        visible.value = false;
+      }
+      else {
+        message.warn(data.msg);
+      }
+    }
+  });
 }
 </script>
 

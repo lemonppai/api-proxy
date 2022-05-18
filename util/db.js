@@ -1,6 +1,6 @@
 const Datastore = require('nedb');
 const db = {
-  project: new Datastore({ filename: 'db/project' })
+  project: new Datastore({ filename: 'data/db/project' })
 };
 
 db.project.loadDatabase();
