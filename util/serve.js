@@ -8,37 +8,47 @@ const fs = require('fs');
 const url = require('url');
 
 const app = express();
+const delay = 500;
+
+// 中间件，延时响应
+app.use((req, res, next) => {
+  setTimeout(() => next(), delay);
+});
+
+app.use((req, res) => {
+  const pathname = url.parse(req.url).pathname;
+  // console.log(pathname)
+  // console.log(req)
+  fs.readFile('./data/api' + pathname, (err, data) => {
+    if (err) {
+      res.send(404);
+      return;
+    }
+
+    const mockData = Mock.mock(JSON.parse(data));
+    res.send(mockData);
+  });
+});
 
 module.exports = {
   server: null,
 
-  create(port = 8070, delay = 500) {
-    // 中间件，延时响应
-    app.use((req, res, next) => {
-      setTimeout(() => next(), delay);
-    });
-
-    app.use((req, res) => {
-      const pathname = url.parse(req.url).pathname;
-      // console.log(pathname)
-      // console.log(req)
-      fs.readFile('./data/api' + pathname, (err, data) => {
-        if (err) {
-          res.send(404);
-          return;
-        }
-
-        const mockData = Mock.mock(JSON.parse(data));
-        res.send(mockData);
+  create(port = 8070) {
+    return new Promise((resolve, reject) => {
+      // 监听port端口
+      this.server = app.listen(port, '0.0.0.0', () => {
+        // console.log(err)
+        console.log(`> Listening at http://localhost:${port}`);
+        resolve();
       });
-    });
 
-    // 监听port端口
-    this.server = app.listen(port, '0.0.0.0', (err) => {
-      if (err) throw err;
-      // console.log(`> Listening at ` + chalk.bold.blue(`http://localhost:${port}`));
-
-      console.log(`> Listening at http://localhost:${port}`);
+      this.server.on('error', (e) => {
+        if (e.code === 'EADDRINUSE') {
+          console.log('Address in use, retrying...');
+          reject();
+        }
+      });
+      // console.log(this.server)
     });
   },
 

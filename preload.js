@@ -1,7 +1,8 @@
 const { ipcRenderer, contextBridge } = require('electron')
 const remote = require('@electron/remote');
-const db = require('./util/db.js');
 const rmdir = require('rmdir');
+const db = require('./util/db.js');
+const serve = require('./util/serve');
 
 /* function rmdir(dirPath) {
   if (fs.existsSync(dirPath)) {
@@ -40,11 +41,13 @@ contextBridge.exposeInMainWorld('toolkit', {
   },
 
   createServe(port) {
-    ipcRenderer.send('serve.create', { port });
+    // ipcRenderer.send('serve.create', { port });
+    return serve.create(port);
   },
 
   closeServe() {
-    ipcRenderer.send('serve.close');
+    // ipcRenderer.send('serve.close');
+    return serve.close();
   },
 
   openDevTools() {
@@ -108,7 +111,6 @@ contextBridge.exposeInMainWorld('api', {
 
     update(params) {
       // console.log(params)
-
       return new Promise((resolve) => {
         db.project.update({ _id: params._id }, params, {}, (err) => {
           if (!err) {

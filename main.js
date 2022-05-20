@@ -61,18 +61,6 @@ ipcMain.on('open', (event, data) => {
   getHttpData(webWindow, data.id);
 })
 
-ipcMain.on('serve.create', (event, data) => {
-  console.log('serve.create', data.port);
-  // console.log(event, data);
-  serve.create();
-})
-
-ipcMain.on('serve.close', (event, data) => {
-  console.log('serve.close')
-  // console.log(event, data);
-  serve.close();
-})
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.

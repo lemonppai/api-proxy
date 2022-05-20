@@ -27,23 +27,23 @@
         </div>
       </n-tab-pane>
       <n-tab-pane tab="服务" name="1">
-        <n-form inline label-placement="left" :model="form" :rules="rules">
-          <n-form-item path="url" label="端口号">
+        <n-form inline label-placement="left">
+          <n-form-item label="端口号">
             <!-- {{ form }} -->
-            <n-input-number v-model:value="form.port" placeholder="默认端口号：8070" />
+            <n-input-number v-model:value="port" placeholder="默认端口号：8070" :disabled="isLaunch" />
           </n-form-item>
 
           <n-form-item>
             <n-space>
-              <n-button type="primary" @click="handleCreate">启动</n-button>
+              <n-button v-if="!isLaunch" type="primary" @click="handleCreate">启动</n-button>
 
-              <n-button @click="handleClose">关闭</n-button>
+              <n-button v-else strong secondary type="primary" @click="handleClose">关闭</n-button>
             </n-space>
           </n-form-item>
         </n-form>
 
-        <n-alert title="服务状态" type="info">
-          http://localhost:{{port || 8070}}
+        <n-alert v-if="isLaunch" title="服务" type="info">
+          运行在：http://localhost:{{port || 8070}}
         </n-alert>
       </n-tab-pane>
 
@@ -95,11 +95,15 @@
 // import HelloWorld from './components/HelloWorld.vue'
 import { reactive, ref, onMounted } from 'vue'
 import { useMessage, useLoadingBar } from 'naive-ui'
-import { BugOutline, AddSharp } from '@vicons/ionicons5'
+import { BugOutline, AddSharp, RocketSharp, DocumentTextOutline } from '@vicons/ionicons5'
 
 const message = useMessage();
 
 const loadingBar = useLoadingBar();
+
+const port = ref(8070);
+
+const isLaunch = ref(false);
 
 const form = reactive({
   /* url: 'https://baidu.com',
@@ -132,11 +136,51 @@ const columns = [
     title: '应用名',
     key: 'name',
     minWidth: 100,
+    render(row, index) {
+      return (
+        <n-space>
+          { row.name }
+          {
+            isLaunch.value ? (
+              <n-popconfirm positive-text="复制" negative-text={null} trigger="hover" placement="right" v-slots={
+                {
+                  icon: () => (
+                    <n-icon color="rgba(32, 128, 240, 0.22)">
+                      <RocketSharp />
+                    </n-icon>
+                  ),
+
+                  // default: () => <>服务地址：http://localhost:{port || 8070}</>,
+
+                  trigger: () => (
+                    <n-button text type="info" type="primary" v-slots={
+                      {
+                        icon: () => (
+                          <n-icon>
+                            <DocumentTextOutline />
+                          </n-icon>
+                        ),
+                      }
+                    }>
+                    </n-button>
+                  )
+                }
+              } onPositiveClick={handleCopy.bind(null, `http://localhost:${port.value || 8070}/${row._id}`)}>
+                服务地址：<br />
+                http://localhost:{port.value || 8070}/{row._id}
+              </n-popconfirm>
+            ) : null
+          }
+
+        </n-space>
+      );
+    }
   },
+
   {
     title: '路径',
     key: 'url',
-    minWidth: 160,
+    minWidth: 180,
     render(row, index) {
       return (
         <n-button text type="info" onClick={handleOpen.bind(null, row)}>
@@ -215,15 +259,23 @@ const handleOpen = (row) => {
 };
 
 const handleCreate = () => {
-  message.success('服务已启动');
-
-  toolkit.createServe(form.port);
+  toolkit.createServe({
+    port: port.value,
+  }).then(() => {
+    message.success('服务已启动');
+    isLaunch.value = true;
+  }).catch((err) => {
+    message.error('服务启动失败：端口号被占用');
+    isLaunch.value = false;
+  });
 };
 
 const handleClose = () => {
   message.success('服务已关闭');
 
   toolkit.closeServe();
+
+  isLaunch.value = false;
 };
 
 const openDevTools = () => {
@@ -237,7 +289,7 @@ const refresh = async () => {
     tableData.value = data.data;
   }
   else {
-    message.warn(data.msg);
+    message.error(data.msg);
   }
 }
 
@@ -280,7 +332,7 @@ const handleRemove = async (row) => {
     refresh();
   }
   else {
-    message.warn(data.msg);
+    message.error(data.msg);
   }
 }
 
@@ -319,10 +371,23 @@ const handleOk = () => {
         visible.value = false;
       }
       else {
-        message.warn(data.msg);
+        message.error(data.msg);
       }
     }
   });
+}
+
+// 复制
+const handleCopy = (text) => {
+  const el = document.createElement('textarea');
+  // el.style.display = 'none';
+  document.body.appendChild(el);
+  el.value = text;
+  el.select(); // 选中文本
+  document.execCommand("copy"); // 执行浏览器复制命令
+  document.body.removeChild(el);
+
+  message.success('已复制到剪贴板');
 }
 </script>
 
