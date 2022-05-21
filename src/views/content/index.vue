@@ -59,7 +59,7 @@
      <n-modal v-model:show="visible" :mask-closable="false">
       <n-card
         style="width: 600px"
-        title="编辑"
+        :title="!form._id ? '新增' : '编辑'"
         :bordered="false"
         size="medium"
         role="dialog"
@@ -86,6 +86,8 @@
         </template>
       </n-card>
      </n-modal>
+
+     <Dialog v-if="visible2" @close="visible2 = false"></Dialog>
   </div>
 </template>
 
@@ -96,6 +98,7 @@
 import { reactive, ref, onMounted } from 'vue'
 import { useMessage, useLoadingBar } from 'naive-ui'
 import { BugOutline, AddSharp, RocketSharp, DocumentTextOutline } from '@vicons/ionicons5'
+import Dialog from './dialog.vue';
 
 const message = useMessage();
 
@@ -216,7 +219,7 @@ const columns = [
        <n-space>
          <n-button type="primary" size="small" ghost onClick={handleEdit.bind(null, row)}>编辑</n-button>
 
-         <n-button type="info" size="small" ghost onClick={handleEdit.bind(null, row)}>导出</n-button>
+         <n-button type="info" size="small" ghost onClick={handleOpenApi.bind(null, row)}>接口</n-button>
 
          <n-popconfirm positive-text="确定" negative-text="取消" v-slots={
            {
@@ -234,9 +237,16 @@ const columns = [
   }
 ];
 
-const tableData = ref([]);
+const tableData = ref([
+  {
+    _id: '1111',
+    name: '123'
+  }
+]);
 
 const visible = ref(false);
+
+const visible2 = ref(false);
 
 const formRef = ref(null);
 
@@ -388,6 +398,10 @@ const handleCopy = (text) => {
   document.body.removeChild(el);
 
   message.success('已复制到剪贴板');
+}
+
+const handleOpenApi = () => {
+  visible2.value = true;
 }
 </script>
 
