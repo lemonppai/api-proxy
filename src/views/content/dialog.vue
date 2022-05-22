@@ -15,8 +15,9 @@
       />
       <template #footer>
         <n-space justify="end">
-          <n-button @click="close">取消</n-button>
-          <n-button type="primary" @click="handleOk">确定</n-button>
+          <!-- <n-button @click="close">取消</n-button> -->
+          <n-button type="primary" @click="handleOk">导入</n-button>
+          <n-button type="primary" @click="handleOk">导出</n-button>
         </n-space>
       </template>
     </n-card>
@@ -24,12 +25,29 @@
 </template>
 
 <script setup lang="jsx">
-import { reactive, ref, onMounted, defineEmits } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useMessage, useLoadingBar } from 'naive-ui'
 
 const visible = ref(false);
 
-const treeData = reactive([]);
+const treeData = reactive([
+  {
+    label: '一',
+    key: 1,
+    children: [
+      {
+        label: '二',
+        key: 2,
+        children: [
+          {
+            label: '三',
+            key: 3,
+          }
+        ]
+      },
+    ]
+  }
+]);
 
 const emit = defineEmits({
   close: null,
