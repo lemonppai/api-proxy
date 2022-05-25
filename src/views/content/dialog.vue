@@ -1,26 +1,18 @@
 <template>
-  <n-modal v-model:show="visible" :mask-closable="false" @after-leave="closed">
-    <n-card
-      style="width: 600px"
-      title="接口"
-      :bordered="false"
-      size="medium"
-      role="dialog"
-      aria-modal="true">
+  <n-modal v-model:show="visible" preset="dialog" title="接口" :showIcon="false" :mask-closable="false" style="width: 500px;" @after-leave="closed">
+    <n-scrollbar style="height: 200px;">
       <n-tree
         block-line
         cascade
         checkable
         :data="treeData"
       />
-      <template #footer>
-        <n-space justify="end">
-          <!-- <n-button @click="close">取消</n-button> -->
-          <n-button type="primary" @click="handleOk">导入</n-button>
-          <n-button type="primary" @click="handleOk">导出</n-button>
-        </n-space>
-      </template>
-    </n-card>
+    </n-scrollbar>
+
+    <template #action>
+      <n-button type="primary" @click="handleOk">导入</n-button>
+      <n-button type="primary" @click="handleOk">导出</n-button>
+    </template>
   </n-modal>
 </template>
 
@@ -28,30 +20,26 @@
 import { reactive, ref, onMounted } from 'vue'
 import { useMessage, useLoadingBar } from 'naive-ui'
 
-const visible = ref(false);
-
-const treeData = reactive([
-  {
-    label: '一',
-    key: 1,
-    children: [
-      {
-        label: '二',
-        key: 2,
-        children: [
-          {
-            label: '三',
-            key: 3,
-          }
-        ]
-      },
-    ]
-  }
-]);
+const props = defineProps({
+  row: null,
+})
 
 const emit = defineEmits({
   close: null,
 });
+
+const visible = ref(false);
+
+const files = toolkit.readFileList(`data/api/${props.row._id}`);
+
+const treeData = reactive(
+  files.map(file => {
+    return {
+      label: file,
+      key: file,
+    };
+  })
+);
 
 onMounted(() => {
   visible.value = true;
@@ -69,6 +57,5 @@ const closed = () => {
 
 const handleOk = () => {
   close();
-
 };
 </script>
