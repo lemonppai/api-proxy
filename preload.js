@@ -3,6 +3,7 @@ const remote = require('@electron/remote');
 const rmdir = require('rmdir');
 const db = require('./util/db.js');
 const serve = require('./util/serve');
+const readFileList = require('./util/readFileList');
 
 /* function rmdir(dirPath) {
   if (fs.existsSync(dirPath)) {
@@ -52,6 +53,10 @@ contextBridge.exposeInMainWorld('toolkit', {
 
   openDevTools() {
     remote.getCurrentWindow().webContents.openDevTools();
+  },
+
+  readFileList(dirPath) {
+    return readFileList(dirPath);
   },
 
   async print() {

@@ -56,38 +56,28 @@
       </template>
     </n-tabs>
 
-     <n-modal v-model:show="visible" :mask-closable="false">
-      <n-card
-        style="width: 600px"
-        :title="!form._id ? '新增' : '编辑'"
-        :bordered="false"
-        size="medium"
-        role="dialog"
-        aria-modal="true">
-        <n-form ref="formRef" label-placement="left" label-width="auto" require-mark-placement="right-hanging" :model="form" :rules="rules">
-          <n-form-item path="name" label="应用名">
-            <n-input v-model:value="form.name" />
-          </n-form-item>
+    <n-modal v-model:show="visible" preset="dialog" :title="!form._id ? '新增' : '编辑'" :showIcon="false" :mask-closable="false" style="width: 500px;">
+      <n-form ref="formRef" label-placement="left" label-width="auto" require-mark-placement="right-hanging" :model="form" :rules="rules">
+        <n-form-item path="name" label="应用名">
+          <n-input v-model:value="form.name" />
+        </n-form-item>
 
-          <n-form-item path="url" label="应用路径">
-            <n-input v-model:value="form.url" />
-          </n-form-item>
+        <n-form-item path="url" label="应用路径">
+          <n-input v-model:value="form.url" />
+        </n-form-item>
 
-          <n-form-item path="remark" label="备注">
-            <n-input v-model:value="form.remark" type="textarea" />
-          </n-form-item>
-        </n-form>
+        <n-form-item path="remark" label="备注">
+          <n-input v-model:value="form.remark" type="textarea" />
+        </n-form-item>
+      </n-form>
 
-        <template #footer>
-          <n-space justify="end">
-            <n-button @click="visible = false">取消</n-button>
-            <n-button type="primary" @click="handleOk">确定</n-button>
-          </n-space>
-        </template>
-      </n-card>
-     </n-modal>
+      <template #action>
+        <n-button @click="visible = false">取消</n-button>
+        <n-button type="primary" @click="handleOk">确定</n-button>
+      </template>
+    </n-modal>
 
-     <Dialog v-if="visible2" @close="visible2 = false"></Dialog>
+     <Dialog v-if="visible2" @close="visible2 = false" :row="activeRow"></Dialog>
   </div>
 </template>
 
@@ -133,6 +123,8 @@ const rules = {
     }
   },
 };
+
+const activeRow = ref(null);
 
 const columns = [
   {
@@ -237,12 +229,7 @@ const columns = [
   }
 ];
 
-const tableData = ref([
-  {
-    _id: '1111',
-    name: '123'
-  }
-]);
+const tableData = ref([]);
 
 const visible = ref(false);
 
@@ -400,7 +387,8 @@ const handleCopy = (text) => {
   message.success('已复制到剪贴板');
 }
 
-const handleOpenApi = () => {
+const handleOpenApi = (row) => {
+  activeRow.value = row;
   visible2.value = true;
 }
 </script>
