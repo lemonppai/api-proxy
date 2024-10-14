@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow, Menu, ipcMain} = require('electron')
+const {app, BrowserWindow, Menu, ipcMain, Tray} = require('electron')
 const remote = require("@electron/remote/main")
 const path = require('path')
 const getHttpData = require('./util/getHttpData');
@@ -64,6 +64,7 @@ ipcMain.on('open', (event, data) => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+let tray = null;
 app.whenReady().then(() => {
   mainWindow = createWindow()
 
@@ -72,7 +73,32 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) mainWindow = createWindow()
   })
+
+  tray = new Tray('build/icons/logo.ico')
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      role: 'quit',
+      label: '退出'
+    }
+  ]);
+
+  tray.setContextMenu(contextMenu);
+
+  // 托盘图标被双击
+  tray.on('double-click', () => {
+    // 显示窗口
+    mainWindow.show();
+  });
+
+  // 窗口最小化
+  mainWindow.on('minimize', ev => {
+    // 阻止最小化
+    ev.preventDefault();
+    // 隐藏窗口
+    mainWindow.hide();
+  });
 })
+
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
