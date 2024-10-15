@@ -74,7 +74,7 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) mainWindow = createWindow()
   })
 
-  tray = new Tray('build/icons/logo.ico')
+  tray = new Tray(path.join(__dirname, 'build/icons/logo.ico'))
   const contextMenu = Menu.buildFromTemplate([
     {
       role: 'quit',
