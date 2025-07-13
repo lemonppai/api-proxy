@@ -63,10 +63,9 @@ module.exports = (webWindow, id) => {
       // 在这里可以添加对特定 MIME 类型的处理逻辑，html进行保存
       if (mimeType === 'text/html') {
         axios.get(resourceUrl)
-          .then(response => response.text())
-          .then(html => {
+          .then(res => {
             const location = url.parse(resourceUrl);
-            const pathname = location.pathname;
+            let pathname = location.pathname;
             if (pathname.endsWith('/')) {
               pathname += 'index.html'; // 确保目录有一个默认文件
             }
@@ -75,7 +74,7 @@ module.exports = (webWindow, id) => {
               pathname += '.html';
             }
 
-            saveFile(`resources/${id + pathname}`, html);
+            saveFile(`resources/${id + pathname}`, res.data);
           });
       }
       else {
