@@ -2,7 +2,8 @@
 const {app, BrowserWindow, Menu, ipcMain, Tray} = require('electron')
 const remote = require("@electron/remote/main")
 const path = require('path')
-const getHttpData = require('./util/getHttpData');
+// const getHttpData = require('./util/getHttpData');
+const saveResource = require('./util/saveResource');
 const serve = require('./util/serve');
 
 remote.initialize();
@@ -36,7 +37,7 @@ function createWindow (url = defaultUrl, preload = path.join(__dirname, 'preload
     }
   })
 
-  // getHttpData(mainWindow);
+  // saveResource(mainWindow);
 
   // and load the index.html of the app.
   // mainWindow.loadURL('http://172.16.52.215:9098/')
@@ -58,7 +59,7 @@ function createWindow (url = defaultUrl, preload = path.join(__dirname, 'preload
 ipcMain.on('open', (event, data) => {
   // console.log(event, data);
   const webWindow = createWindow(data.url);
-  getHttpData(webWindow, data.id);
+  saveResource(webWindow, data.id);
 })
 
 // This method will be called when Electron has finished
