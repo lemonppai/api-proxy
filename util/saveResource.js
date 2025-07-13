@@ -1,4 +1,3 @@
-const url = require('url');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
@@ -64,7 +63,7 @@ module.exports = (webWindow, id) => {
       if (mimeType === 'text/html') {
         axios.get(resourceUrl)
           .then(res => {
-            const location = url.parse(resourceUrl);
+            const location = new URL(resourceUrl);
             let pathname = location.pathname;
             if (pathname.endsWith('/')) {
               pathname += 'index.html'; // 确保目录有一个默认文件
@@ -80,19 +79,26 @@ module.exports = (webWindow, id) => {
       else {
         webWindow.webContents.debugger.sendCommand('Network.getResponseBody', { requestId: params.requestId }).then(function(response) {
           // html没响应
-          console.log(mimeType);
+          // console.log(mimeType);
 
           // console.log(JSON.parse(response.body));
-          const location = url.parse(resourceUrl);
+          const location = new URL(resourceUrl);
           const pathname = location.pathname;
 
           // base64 图片路径存储为文件
-          if (location.protocol === 'data:') {
+          if (['data:', 'blob:'].includes(location.protocol)) {
             const ext = location.pathname.split(';')[0].split('/')[1];
             // saveFile(`resources/${id}/${+new Date}.${ext}`, response.body);
           }
           else {
-            saveFile(`resources/${id + pathname}`, response.body);
+            if (location.origin !== new URL(webWindow.webContents.getURL()).origin) {
+              // 跨域资源
+              // console.log('跨域资源:', resourceUrl);
+              saveFile(`resources/${id}/domain/${encodeURIComponent(location.href)}`, response.body);
+            }
+            else {
+              saveFile(`resources/${id + pathname}`, response.body);
+            }
           }
         });
       }
